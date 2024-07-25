@@ -1,0 +1,74 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.2'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'app.quantun'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(22)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'org.postgresql:postgresql:42.5.4'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
+    implementation 'dev.langchain4j:langchain4j-open-ai-spring-boot-starter:0.32.0'
+
+    implementation 'dev.langchain4j:langchain4j:0.32.0'
+    implementation 'dev.langchain4j:langchain4j-open-ai:0.32.0'
+    implementation 'dev.langchain4j:langchain4j-cohere:0.32.0'
+    implementation 'dev.langchain4j:langchain4j-web-search-engine-tavily:0.32.0'
+    implementation 'dev.langchain4j:langchain4j-experimental-sql:0.32.0'
+
+    implementation 'dev.langchain4j:langchain4j-embeddings-bge-small-en-v15-q:0.32.0'
+    implementation 'dev.langchain4j:langchain4j-embedding-store-filter-parser-sql:0.32.0'
+
+    // Adding langchain4j-easy-rag with exclusion
+    implementation('dev.langchain4j:langchain4j-easy-rag:0.32.0') {
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-api'
+    }
+
+    testImplementation 'org.assertj:assertj-core'
+
+
+
+
+
+
+
+
+
+
+
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
