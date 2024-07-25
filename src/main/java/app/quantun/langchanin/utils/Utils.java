@@ -1,13 +1,9 @@
 package app.quantun.langchanin.utils;
 
-import app.quantun.langchanin.ai.Assistant;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
