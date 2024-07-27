@@ -5,6 +5,7 @@ import {AnswerComponent} from "../answer/answer.component";
 import {QuestionComponent} from "../question/question.component";
 
 import { ChatModel } from '../../models/ChatModel';
+import {SimpleAnswer} from "../../models/SimpleAnswer";
 
 
 @Component({
@@ -37,8 +38,8 @@ export class ChatComponent  implements OnInit {
 
   sendMessage(){
     this.messagesChatModel.push({ isQuestion: true, body: this.message, id: this.messagesChatModel.length  });
-    this.chatService.getAnswer(this.message).subscribe((answer: string) => {
-      this.messagesChatModel.push({ isQuestion: false, body: answer , id: this.messagesChatModel.length });
+    this.chatService.getAnswer({message:this.message}).subscribe((simpleAnswer: SimpleAnswer) => {
+      this.messagesChatModel.push({ isQuestion: false, body: simpleAnswer.answer , id: this.messagesChatModel.length });
       this.message = '';
     });
 

@@ -1,6 +1,7 @@
 package app.quantun.langchanin.services;
 
 import app.quantun.langchanin.ai.Assistant;
+import app.quantun.langchanin.models.dto.Answer;
 import dev.langchain4j.experimental.rag.content.retriever.sql.SqlDatabaseContentRetriever;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
@@ -26,11 +27,11 @@ public class ChatServicesImpl implements ChatServices {
     private DataSource dataSource;
 
     @Override
-    public String getAnswer(String userQuery) {
+    public Answer getAnswer(String userQuery) {
 
         String agentAnswer = this.createAssistant().answer(userQuery);
         log.info("==================================================");
-        return agentAnswer;
+        return new Answer(agentAnswer);
     }
 
     @Override

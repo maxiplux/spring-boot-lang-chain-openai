@@ -1,9 +1,10 @@
 package app.quantun.langchanin.services;
 
 import app.quantun.langchanin.ai.Assistant;
+import app.quantun.langchanin.models.dto.Answer;
 
 public interface ChatServices {
-    String getAnswer(String userQuery);
+    Answer getAnswer(String userQuery);
 
     Assistant createAssistant();
 }
