@@ -5,7 +5,8 @@ import app.quantun.langchanin.services.ChatServices;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/api/v1/chat")
+@RestController()
+@RequestMapping("/api/v1/")
 @RequiredArgsConstructor
 public class ChatController {
 

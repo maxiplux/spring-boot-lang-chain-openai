@@ -31,10 +31,10 @@ public class CustomAuthenticationFailureHandler
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        response.setStatus(HttpStatus.FORBIDDEN.value());
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/problem+json");
 
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Access denied due to missing or invalid authentication token.");
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Access denied due to missing or invalid authentication token.");
         problemDetail.setTitle("Authorization Error");
         problemDetail.setType(URI.create("https://local.com/error"));
         problemDetail.setInstance(URI.create(request.getRequestURI()));

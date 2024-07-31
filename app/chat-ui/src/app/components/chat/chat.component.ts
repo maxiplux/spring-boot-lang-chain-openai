@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {ChatService} from "../../services/chat.service";
 import {FormsModule} from "@angular/forms";
-import {AnswerComponent} from "../answer/answer.component";
-import {QuestionComponent} from "../question/question.component";
+import {AnswerComponent} from "./answer/answer.component";
+import {QuestionComponent} from "./question/question.component";
 
 import { ChatModel } from '../../models/ChatModel';
 import {SimpleAnswer} from "../../models/SimpleAnswer";
