@@ -15,5 +15,6 @@ import {HeaderComponent} from "../../menus/header/header.component";
 
 })
 export class DashboardComponent {
+  title = 'dashboard';
 
 }

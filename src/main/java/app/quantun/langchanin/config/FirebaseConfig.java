@@ -5,6 +5,9 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,5 +57,13 @@ public class FirebaseConfig {
                 .setCredentials(GoogleCredentials.fromStream(this.getServiceAccount())).build();
         return firestoreOptions.getService();
     }
+
+    @Bean
+    public FirebaseAuth getFirebaseAuth(FirebaseApp firebaseApp) throws IOException {
+
+        return FirebaseAuth.getInstance();
+    }
+
+
 
 }

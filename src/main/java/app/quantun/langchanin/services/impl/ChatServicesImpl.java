@@ -1,7 +1,8 @@
-package app.quantun.langchanin.services;
+package app.quantun.langchanin.services.impl;
 
 import app.quantun.langchanin.ai.Assistant;
 import app.quantun.langchanin.models.dto.Answer;
+import app.quantun.langchanin.services.ChatServices;
 import dev.langchain4j.experimental.rag.content.retriever.sql.SqlDatabaseContentRetriever;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;

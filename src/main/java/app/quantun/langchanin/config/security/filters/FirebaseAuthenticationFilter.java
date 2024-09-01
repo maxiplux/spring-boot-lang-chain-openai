@@ -32,6 +32,7 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (FirebaseAuthException e) {
+
                 log.error("Firebase Authentication Failed", e);
             }
         }
