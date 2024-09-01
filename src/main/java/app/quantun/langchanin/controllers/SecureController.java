@@ -1,8 +1,12 @@
 package app.quantun.langchanin.controllers;
 
 
+import app.quantun.langchanin.models.dto.UpdateRoleRequest;
+import app.quantun.langchanin.models.dto.UserRecordDto;
 import app.quantun.langchanin.models.enums.Permission;
 import app.quantun.langchanin.services.UserManagementService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.auth.UserRecord;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +18,8 @@ import java.util.List;
 @Slf4j
 public class SecureController {
 
+
+
     @Autowired
     private UserManagementService userManagementService;
 
@@ -23,10 +29,12 @@ public class SecureController {
     }
 
     @PutMapping("/roles")
-    public String updateRoles(@RequestHeader(value = "Authorization", required = true) String idToken, @RequestBody List<Permission> requestedPermissions)
-    {
-        this.userManagementService.setUserPermissions(userManagementService.getUserId(idToken), requestedPermissions);
-        return "Role set!";
+    public UserRecordDto updateRoles(@RequestHeader(value = "Authorization", required = true) String idToken, @RequestBody UpdateRoleRequest updateRoleRequest) {
+        return this.userManagementService.setUserPermissions( updateRoleRequest);
+
     }
+
+
+
 }
 

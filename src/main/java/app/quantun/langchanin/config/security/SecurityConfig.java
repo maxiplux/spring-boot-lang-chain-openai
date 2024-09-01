@@ -1,76 +1,89 @@
 package app.quantun.langchanin.config.security;
 
-import app.quantun.langchanin.advaices.CustomAuthenticationFailureHandler;
-import app.quantun.langchanin.advaices.GlobalExceptionHandler;
-import app.quantun.langchanin.config.security.filters.FirebaseAuthenticationFilter;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import io.swagger.v3.oas.models.ExternalDocumentation;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
+import app.quantun.langchanin.advaices.UnAuthorizedExceptionHandler;
+import app.quantun.langchanin.advaices.GlobalExceptionHandlerResponseEntityExceptionHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.Optional;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+
+import java.util.Collection;
 import java.util.stream.Collectors;
+
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
+@Slf4j
+public class SecurityConfig {
 
-@SecurityScheme(
-        name = "Bearer Authentication",
-        type = SecuritySchemeType.HTTP,
-        bearerFormat = "JWT",
-        scheme = "bearer"
-)
-public class SecurityConfig  {
 
-    @Autowired
-    private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+
+
 
     @Bean
-    public OpenAPI springOpenAPI() {
-        final String securitySchemeName = "bearerAuth";
-        return new OpenAPI()
-                .info(new Info().title("SpringBoot API")
-                        .description("SpringBoot sample application")
-                        .version("v0.0.1")
-                        .license(new License().name("Apache 2.0").url("http://springdoc.org")))
-                .externalDocs(new ExternalDocumentation()
-                        .description("SpringBoot Wiki Documentation")
-                        .url("https://springboot.wiki.github.org/docs"));
-    }
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, GlobalExceptionHandlerResponseEntityExceptionHandler globalExceptionHandler) throws Exception {
+        http
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, GlobalExceptionHandler globalExceptionHandler) throws Exception {
-        http.csrf().disable()
-                .authorizeHttpRequests()
-
-                .requestMatchers("/api/v1/**", "/actuator/**","/v3/**","/swagger-ui.html","/swagger-ui*/**","/swagger-ui/**").permitAll()  // public endpoints
-
-                .anyRequest().authenticated()
-
-
-                .and()
-
+                .csrf().disable()
                 .formLogin().disable()
-
-
-                .addFilterBefore(new FirebaseAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling()
-                .authenticationEntryPoint(customAuthenticationFailureHandler) // Add this line
+                .httpBasic().disable()
+                .logout().disable()
+                .authorizeHttpRequests()
+                .requestMatchers("/api/v1/**", "/actuator/**", "/v3/**", "/swagger-ui.html", "/swagger-ui*/**", "/swagger-ui/**").permitAll()
+                .anyRequest().authenticated()
                 .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                        .authenticationEntryPoint(new UnAuthorizedExceptionHandler())
+                        .accessDeniedHandler(new ForbiddenExceptionHandler())
+
+                        )
+                .exceptionHandling(exceptions -> {
+                    exceptions.accessDeniedHandler(new ForbiddenExceptionHandler());
+                    exceptions.authenticationEntryPoint(new UnAuthorizedExceptionHandler());})
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
+
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(new FirebaseGrantedAuthoritiesConverter());
+        return converter;
+
+    }
+
+    private static class FirebaseGrantedAuthoritiesConverter implements Converter<org.springframework.security.oauth2.jwt.Jwt, Collection<GrantedAuthority>> {
+        @Override
+        public Collection<GrantedAuthority> convert(org.springframework.security.oauth2.jwt.Jwt jwt)
+
+        {
+            // Extract roles/claims from the Firebase JWT and map them to GrantedAuthority objects
+            // For example:
+            Collection<GrantedAuthority> authorities =jwt.getClaimAsStringList("custom_claims").stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+
+            return authorities;
+            //return Collections.emptyList(); // Replace with your logic
+        }
+    }
+
+
+
+
 
 
 }

@@ -3,8 +3,12 @@ package app.quantun.langchanin.services.impl;
 
 import app.quantun.langchanin.errors.InvalidSecurityBridgetException;
 import app.quantun.langchanin.errors.InvalidTokenException;
+import app.quantun.langchanin.models.dto.CustomClaimsDto;
+import app.quantun.langchanin.models.dto.UpdateRoleRequest;
+import app.quantun.langchanin.models.dto.UserRecordDto;
 import app.quantun.langchanin.models.enums.Permission;
 import app.quantun.langchanin.services.UserManagementService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -22,40 +26,40 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class UserManagementServiceImpl implements UserManagementService {
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
-    private  FirebaseAuth firebaseAuth;
+    private FirebaseAuth firebaseAuth;
 
     @Override
-    public Boolean setUserPermissions(String uid, List<Permission> requestedPermissions)  {
-        List<String> permissions = requestedPermissions
-                .stream()
-                .map(Enum::toString)
-                .collect(Collectors.toList());
+    public UserRecordDto setUserPermissions(UpdateRoleRequest updateRoleRequest) {
+        List<String> permissions = updateRoleRequest.getPermissions().stream().map(Permission::name).collect(Collectors.toList());
+        String uid = updateRoleRequest.getUserId();
+
 
         Map<String, Object> claims = Map.of("custom_claims", permissions);
 
         try {
             firebaseAuth.setCustomUserClaims(uid, claims);
-            firebaseAuth.getUser(uid);
-            return true;
-        } catch (FirebaseAuthException e)
-        {
-            log.error("Error setting user claims {}", e.getLocalizedMessage());
 
+            return mapToUserRecordDto(firebaseAuth.getUser(uid));
+
+
+        } catch (FirebaseAuthException e) {
+            log.error("Error setting user claims {}", e.getLocalizedMessage());
             throw new InvalidSecurityBridgetException(e.getLocalizedMessage());
         }
 
     }
 
     @Override
-    public void updateUser(String uid, String email, String password)  {
+    public void updateUser(String uid, String email, String password) {
         UserRecord.UpdateRequest request = new UserRecord.UpdateRequest(uid)
                 .setEmail(email)
                 .setPassword(password);
 
-        try
-        {
+        try {
             FirebaseAuth.getInstance().updateUser(request);
         } catch (FirebaseAuthException e) {
             log.error("Error updating user {}", e.getLocalizedMessage());
@@ -68,7 +72,7 @@ public class UserManagementServiceImpl implements UserManagementService {
 
         FirebaseToken decodedToken = null;
         try {
-            decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken.replace("Bearer ",""));
+            decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken.replace("Bearer ", ""));
         } catch (FirebaseAuthException e) {
             log.error("Error verifying token {}", e.getLocalizedMessage());
             throw new InvalidTokenException(e.getLocalizedMessage());
@@ -76,6 +80,19 @@ public class UserManagementServiceImpl implements UserManagementService {
         return decodedToken.getUid();
 
 
+    }
+
+    private UserRecordDto mapToUserRecordDto(UserRecord userRecord) {
+        UserRecordDto userRecordDto=this.objectMapper.convertValue(userRecord, UserRecordDto.class);
+        userRecord.getCustomClaims().forEach((k,v)->{
+
+
+            userRecordDto.setCustomClaims((Map.of(k,v)));
+
+
+        });
+
+        return userRecordDto;
     }
 
 
